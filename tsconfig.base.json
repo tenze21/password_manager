@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        /*Language and enviroment*/
+        "target": "es2022",                 //Modern javascript features
+        "lib": ["ES2022"],                  //Available built-in APIs
+
+        /*Modules*/
+        "module": "esnext",                 //Use latest module system
+        "moduleResolution": "bundler",      //How to resolve module imports
+        "resolveJsonModule": true,          //Allow importing JSON files
+
+        /*Emit*/
+        "declaration": true,                //Generate .d.ts files
+        "declarationMap": true,             //Sourcemaps for .d.ts files
+        "sourceMap": true,                  // Generate sourcemaps for debugging
+        "removeComments": true,             //Remove comments in output
+
+        /*Interop Constraints*/
+        "esModuleInterop": true,             //Better CommonJS/ES Module compatibility
+        "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+        "forceConsistentCasingInFileNames": true, // Enforce consistent file naming
+        "isolatedModules": true,                // Each file can be transpiled independently
+
+        /*Type Checking*/
+        "strict": true,                     // Enable ALL strict type checking options
+        "noUnusedLocals": true,              // Error on unused local variables
+        "noUnusedParameters": true,          // Error on unused function parameters
+        "noFallthroughCasesInSwitch": true,  // Error on switch fallthrough
+        "noImplicitReturns": true,           // Error when not all code paths return
+        "noUncheckedIndexedAccess": true,     // Add undefined to index signatures
+
+        /*Completeness*/
+        "skipLibCheck": true                 // Skip type checking of declaration files (faster)
+    }
+}

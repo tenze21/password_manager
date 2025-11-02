@@ -1,0 +1,12 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "composite": true, //Enables project references (allows other packages to reference this one efficiently)
+        "declaration": true,//Generates .d.ts type definition files
+        "declarationMap": true,
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
+}
