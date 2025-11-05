@@ -1,0 +1,38 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "target": "es2022",
+        "lib": ["ES2022"],
+
+        /*Node.js specific*/
+        "types": ["node"],
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+
+        /*Path alias for clean imports*/
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"],
+            "@config/*": ["src/config/*"],
+            "@models/*": ["src/models/*"],
+            "@controllers/*": ["src/controllers/*"],
+            "@services/*": ["src/services/*"],
+            "@middleware/*": ["src/middlewares/*"],
+            "@utils/*": ["src/utils/*"]
+        }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"],
+    "references": [{"path": "../shared"}]
+}
+
+/*
+"references" - Project references allow TypeScript to:
+- Build projects in dependency order
+- Cache builds for faster compilation
+- Enforce boundaries between projects
+*/
