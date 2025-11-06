@@ -89,7 +89,7 @@ export interface RegisterRequest{
  */
 export interface LoginRequest{
     email: string;
-    masterPassword: string;
+    masterPasswordHash: string;
     twoFactorCode?: string; // Optional 2FA code
 }
 

@@ -50,7 +50,7 @@ export const Base64Schema=z
  */
 export const RegisterSchema=z.object({
     email: EmailSchema,
-    masterPassword: PasswordHashSchema,
+    masterPasswordHash: PasswordHashSchema,
     encryptedPrivateKey: Base64Schema,
     publicKey: Base64Schema,
     salt: Base64Schema

@@ -54,3 +54,21 @@
     - Easy to rollback on failure.
     - Multiple developers can collaborate safely.
     - Keeps the database in sync across environments (dev, staging, prod).
+
+## Use of different secrets for access and refresh tokens.
+The use of different secrets to generate access and refresh token ensures that if an attacker compromises one  secret, they can't forge the other token type. Also:
+- **Blast radius containment**: If JWT_ACCESS_SECRET leaks, attacker can't create long-lived refresh tokens
+- **Defense in depth**: Two independent security layers 
+
+## Stored user password decryption flow.
+```javascript
+    // CLIENT SIDE (on login)
+    masterPassword (user input)
+    + salt (from server) 
+    → Argon2 
+    → encryptionKey
+
+    encryptionKey + encryptedPrivateKey (from server)
+    → Decrypt
+    → privateKey (used to decrypt vault passwords)
+```
