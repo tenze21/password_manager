@@ -123,7 +123,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
                     code: error.code,
                     message: error.message
                 }
-            });
+            }); 
             return;
         }
         next(error);

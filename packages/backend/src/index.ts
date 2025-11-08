@@ -1,8 +1,13 @@
 import express, {Request, Response, NextFunction} from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import {config} from '@config/env.js';
 import { testConnection } from './config/database.js';
+import { apiLimiter } from '@middleware/rateLimit.middleware.js';
+
+// import routes
+import authRoutes from '@/routes/auth.routes.js'
 
 const app= express();
 
@@ -21,11 +26,17 @@ app.use(cors({
     credentials: true, //allow cookies
 }));
 
+// Cookie parser (for refresh tokens)
+app.use(cookieParser());
+
 /**
  * Body parsing middleware
  */
 app.use(express.json({limit: '10mb'})); //parse JSON bodies
 app.use(express.urlencoded({extended: true})); // Parse URL-encoded bodies
+
+// Apply rate limiting to all routes
+app.use(apiLimiter);
 
 /**
  * Health check endpoint
@@ -49,6 +60,9 @@ app.get('/', (req: Request, res: Response)=>{
         documentation: '/api/docs',
     });
 });
+
+// Mount auth routes
+app.use('/api/auth', authRoutes);
 
 /**
  * 404 handler

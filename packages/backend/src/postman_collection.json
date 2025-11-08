@@ -1,0 +1,69 @@
+{
+  "info": {
+    "name": "Password Manager API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"masterPasswordHash\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"encryptedPrivateKey\": \"ZW5jcnlwdGVkLXByaXZhdGUta2V5\",\n  \"publicKey\": \"cHVibGljLWtleQ==\",\n  \"salt\": \"c2FsdC12YWx1ZQ==\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"masterPasswordHash\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": "{{base_url}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/auth/refresh"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/auth/logout"
+          }
+        }
+      ]
+    }
+  ]
+}

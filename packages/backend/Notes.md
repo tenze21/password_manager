@@ -41,7 +41,7 @@
 
 - **All the associations are defined in a seperate file `models/index.ts` to avoid circular dependencies.**
 
-## Database syncing vs migration.
+# Database syncing vs migration.
 
 - **Syncing:**
     - Automatically creates or updates database tables to match your Sequelize models.
@@ -60,7 +60,7 @@ The use of different secrets to generate access and refresh token ensures that i
 - **Blast radius containment**: If JWT_ACCESS_SECRET leaks, attacker can't create long-lived refresh tokens
 - **Defense in depth**: Two independent security layers 
 
-## Stored user password decryption flow.
+# Stored user password decryption flow.
 ```javascript
     // CLIENT SIDE (on login)
     masterPassword (user input)
@@ -72,3 +72,64 @@ The use of different secrets to generate access and refresh token ensures that i
     → Decrypt
     → privateKey (used to decrypt vault passwords)
 ```
+
+# Rate limiter
+```javascript
+export const authLimiter= rateLimit({
+    windowMs: 15 * 60 * 1000, //15 mins
+    max: 5, //5 request per window
+    message: {
+        success: false,
+        error: {
+            code: ERROR_CODES.FORBIDDEN,
+            message: 'Too many authentication attempts, please try again later'
+        }
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true, //Don't count successful requests
+
+    handler: (req, res)=>{
+        res.status(429).json({
+            success: false,
+            error: {
+                code: ERROR_CODES.FORBIDDEN,
+                message: 'Too many authentication attempts, please try again later'
+            }
+        });
+    }
+});
+```
+**Setting the `skipSuccessfulRequests: true` configures the rate limiter middleware to count only failed authentication attempts while ignoring successful attempts this ensures that legitimate users aren't acidentally locked out of their accounts while preventing brute force and account sniffing attacks.**
+
+# **Security Features Implemented**
+
+1. **Zero-knowledge architecture**
+   - Client-side encryption key derivation
+   - Server never sees plain passwords or encryption keys
+
+2. **Double password hashing**
+   - Client: Argon2 (memory-hard, GPU-resistant)
+   - Server: bcrypt (additional security layer)
+
+3. **JWT authentication**
+   - Short-lived access tokens (15 min)
+   - Long-lived refresh tokens (7 days)
+   - Separate secrets for each token type
+
+4. **Brute force protection**
+   - Rate limiting (5 attempts per 15 min per IP)
+   - Account locking (5 failed logins → 15 min lockout)
+   - Timing-safe comparisons
+
+5. **XSS/CSRF protection**
+   - httpOnly cookies for refresh tokens
+   - CORS configuration
+   - Helmet security headers
+
+## **Architecture Patterns**
+
+1. **Layered architecture**
+    ```
+    Routes → Controllers → Services → Models → Database
+    ```

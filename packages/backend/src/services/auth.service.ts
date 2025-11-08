@@ -179,7 +179,7 @@ export async function loginUser(data: LoginRequest): Promise<AuthResponse>{
  */
 async function incrementFailedLoginAttempt(user: User): Promise<void>{
     const newAttempts= user.failedLoginAttempts + 1;
-    const MAX_ATTEMPTS= 3;
+    const MAX_ATTEMPTS= 5;
     const LOCK_DURATION_MS= 15 * 60 * 1000; //15 minutes
 
     let lockedUntil= user.lockedUntil;
