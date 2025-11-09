@@ -60,6 +60,7 @@ export interface PasswordEntry {
 export interface DecryptedPasswordEntry {
     id: string;
     websiteUrl?: string;
+    websiteName: string;
     username: string;
     password: string;
     notes?: string;

@@ -41,4 +41,10 @@ router.post('/logout', authController.logout);
  */
 router.get('/me', authenticate, authController.getCurrentUser);
 
+/**
+ * POST /api/auth/get-salt
+ * Get user's salt for login
+ */
+router.post('/get-salt', authLimiter, authController.getSalt);
+
 export default router;

@@ -3,6 +3,7 @@ import { registerUser, loginUser, refreshAccessToken, AuthError } from "@service
 import { RegisterSchema, LoginSchema } from "@password_manager/shared";
 import { verifyRefreshToken } from "@utils/jwt.js";
 import { ERROR_CODES } from "@password_manager/shared";
+import {User} from '@models/index.js';
 
 /**
  * Auth Controller
@@ -11,7 +12,7 @@ import { ERROR_CODES } from "@password_manager/shared";
  * Delegates business logic to auth service
  */
 
-/*
+/**
  @desc register a new user
  @route POST /auth/register
  @access public 
@@ -73,7 +74,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
     }
 }
 
-/*
+/** 
     @desc   Authenticate user and return tokens
     @route  POST /auth/login
     @access public
@@ -130,7 +131,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     }
 }
 
-/*
+/**
     @desc   Get new access token using refresh token
     @route  POST /auth/refresh
     @access private
@@ -186,7 +187,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction): 
     }
 }
 
-/*
+/**
     @desc   Clear refresh token cookie
     @route  POST /auth/logout
     @access private
@@ -204,7 +205,7 @@ export async function logout(req: Request, res: Response): Promise<void>{
     });
 }
 
-/*
+/**
     @desc   Get current authenticated user, Requires authentication middleware
     @route  GET /auth/me
     @access private
@@ -230,4 +231,55 @@ export async function getCurrentUser(req: Request, res:Response, next: NextFunct
     } catch (error) {
         next(error);
     }
+}
+
+/**
+    @desc   Get user's salt for key derivation
+    @route  POST /auth/get-salt
+    @access public
+*/
+export async function getSalt(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Email is required',
+        },
+      });
+      return;
+    }
+
+    // Find user by email
+    const user = await User.findOne({
+      where: { email: email.toLowerCase().trim() },
+      attributes: ['salt'], // Only fetch salt, not sensitive data
+    });
+
+    if (!user) {
+      // Return generic error to prevent email enumeration
+      res.status(404).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.NOT_FOUND,
+          message: 'No account found with this email',
+        },
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: { salt: user.salt },
+    });
+  } catch (error) {
+    next(error);
+  }
 }
