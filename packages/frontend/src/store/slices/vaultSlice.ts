@@ -13,7 +13,7 @@ import { type RootState } from '@store/index';
  * Vault Slice
  */
 
-interface VaultState {
+export interface VaultState {
   encryptedEntries: PasswordEntry[];
   decryptedEntries: DecryptedPasswordEntry[];
   selectedEntry: DecryptedPasswordEntry | null;

@@ -41,9 +41,24 @@ export const PasswordHashSchema=z
  * Base64 encoded string validation
  * Used for encrypted data, keys, IVs, etc.
  */
+export const Base64WithIvSchema=z
+    .string()
+    .regex(/^[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*$/, "Invalid base64 with iv format.");
+
 export const Base64Schema=z
     .string()
-    .regex(/^[A-Za-z0-9+/]+=*$/, "Invalid base64 format.");
+    .regex(/^[A-Za-z0-9+/]+=*$/, "Invalid base64 format")
+
+/**
+ * PEM format validation (for RSA keys)
+ * Validates PEM-formatted keys with headers, footers, and base64 content
+ */
+export const PEMSchema = z
+  .string()
+  .regex(
+    /^-----BEGIN [A-Z\s]+-----\n[\s\S]+\n-----END [A-Z\s]+-----$/,
+    'Invalid PEM format'
+  );
 
 /**
  * Registration schema
@@ -51,8 +66,8 @@ export const Base64Schema=z
 export const RegisterSchema=z.object({
     email: EmailSchema,
     masterPasswordHash: PasswordHashSchema,
-    encryptedPrivateKey: Base64Schema,
-    publicKey: Base64Schema,
+    encryptedPrivateKey: Base64WithIvSchema,
+    publicKey: PEMSchema,
     salt: Base64Schema
 });
 
@@ -71,9 +86,9 @@ export const LoginSchema=z.object({
 export const CreatePasswordEntrySchema= z.object({
     websiteUrl: z.url().optional(),
     websiteName: z.string().min(1, "Website name is required").max(255),
-    encryptedUsername: Base64Schema,
-    encryptedPassword: Base64Schema,
-    encryptedNotes: Base64Schema.optional(),
+    encryptedUsername: Base64WithIvSchema,
+    encryptedPassword: Base64WithIvSchema,
+    encryptedNotes: Base64WithIvSchema.optional(),
     folder: z.string().max(100).optional(),
     favorite: z.boolean().default(false)
 });

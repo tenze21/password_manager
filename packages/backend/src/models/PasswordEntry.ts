@@ -27,7 +27,7 @@ export class PasswordEntry extends Model<InferAttributes<PasswordEntry>, InferCr
     declare encryptedNotes: string | null;
 
     declare folder: string | null;
-    declare favourite: CreationOptional<boolean>;
+    declare favorite: CreationOptional<boolean>;
 
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
@@ -85,7 +85,7 @@ PasswordEntry.init({
         type: DataTypes.STRING(100),
         allowNull: true
     },
-    favourite: {
+    favorite: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false

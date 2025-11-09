@@ -337,7 +337,7 @@ export async function toggleFavorite(
     }
 
     // Toggle favorite
-    await entry.update({ favourite: !entry.favourite });
+    await entry.update({ favorite: !entry.favorite });
 
     res.json({
       success: true,
