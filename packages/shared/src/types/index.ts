@@ -131,6 +131,15 @@ export interface TwoFactorSettings{
     updatedAt: Date;
 }
 
+/**
+ * 2FA Required Response
+ * Returned when login requires 2FA verification
+ */
+export interface TwoFactorRequiredResponse{
+    requires2FA: true;
+    method: TwoFactorMethod;
+}
+
 // ============================================
 // API RESPONSE TYPES
 // ============================================
@@ -160,6 +169,8 @@ export interface ApiErrorResponse{
  * Union type for all API responses
  */
 export type ApiResponse<T = any>= ApiSuccessResponse<T> | ApiErrorResponse;//CHECK
+
+export type LoginResponse= AuthResponse | TwoFactorRequiredResponse;
 
 // ============================================
 // CRYPTOGRAPHY TYPES

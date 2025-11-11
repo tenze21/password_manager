@@ -5,10 +5,12 @@ import cookieParser from 'cookie-parser';
 import {config} from '@config/env.js';
 import { testConnection } from './config/database.js';
 import { apiLimiter } from '@middleware/rateLimit.middleware.js';
+import { verifyEmailConfig } from '@services/email.service.js';
 
 // import routes
 import authRoutes from '@routes/auth.routes.js';
 import vaultRoutes from '@routes/vault.routes.js';
+import twoFactorRoutes from '@routes/twoFactor.routes.js';
 
 const app= express();
 
@@ -68,6 +70,8 @@ app.use('/api/auth', authRoutes);
 // Mount valut routes
 app.use('/api/vault', vaultRoutes);
 
+app.use('/api/2fa', twoFactorRoutes);
+
 /**
  * 404 handler
  * Catches all unmatched routes
@@ -103,7 +107,12 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction)=>{
  */
 async function startServer(){
     try {
+        // test database connection
         await testConnection();
+
+        // verify email configuration (non-blocking)
+        verifyEmailConfig();
+        
         app.listen(config.port, ()=>{
             console.log(`Password Manager API\nEnvironment: ${config.env.padEnd(24)}\nPort: ${config.port.toString().padEnd(32)}\nURL: http://localhost:${config.port.toString().padEnd(18)}`);
         })

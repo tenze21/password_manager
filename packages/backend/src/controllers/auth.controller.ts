@@ -87,23 +87,27 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
         // call service layer
         const authResponse= await loginUser(validatedData);
 
-        // Set refresh token cookie 
-        res.cookie('refreshToken', authResponse.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7*24*60*60*1000
-        });
-
-        res.json({
-            success: true,
-            data:{
-                user: authResponse.user,
-                accessToken: authResponse.accessToken,
-                encryptedPrivateKey: authResponse.encryptedPrivateKey,
-                salt: authResponse.salt
-            }
-        });
+        // Check if it's a full auth response or 2FA required
+        if('user' in authResponse){
+            // Set refresh token cookie 
+            res.cookie('refreshToken', authResponse.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7*24*60*60*1000
+            });
+    
+            res.json({
+                success: true,
+                data:{
+                    user: authResponse.user,
+                    accessToken: authResponse.accessToken,
+                    encryptedPrivateKey: authResponse.encryptedPrivateKey,
+                    salt: authResponse.salt
+                }
+            });
+            return;
+        }
     } catch (error) {
         if(error instanceof Error && error.name === 'ZodError'){
             res.status(400).json({
