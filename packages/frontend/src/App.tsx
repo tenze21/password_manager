@@ -8,6 +8,7 @@ import { Spinner } from 'react-bootstrap';
 import LoginPage from '@pages/auth/LoginPage';
 import RegisterPage from '@pages/auth/RegisterPage';
 import VaultPage from '@pages/vault/VaultPage';
+import SettingsPage from '@pages/settings/SettingsPage';
 
 /**
  * Main App Component
@@ -51,6 +52,10 @@ function App() {
         <Route
           path="/vault"
           element={isAuthenticated ? <VaultPage /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/settings"
+          element={isAuthenticated ? <SettingsPage /> : <Navigate to="/login" replace />}
         />
 
         {/* Default redirect */}

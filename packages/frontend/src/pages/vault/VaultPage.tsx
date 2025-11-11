@@ -1,7 +1,18 @@
-import { useEffect, useMemo } from 'react';
-import { Container, Row, Col, Button, Form, InputGroup, Card, Badge, Alert, Spinner } from 'react-bootstrap';
-import { useAppDispatch, useAppSelector } from '@store/index';
-import { logout } from '@store/slices/authSlice';
+import { useEffect, useMemo } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Form,
+  InputGroup,
+  Card,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@store/index";
+import { logout } from "@store/slices/authSlice";
 import {
   fetchPasswordEntries,
   createPasswordEntry,
@@ -14,10 +25,10 @@ import {
   closeEditModal,
   setSearchQuery,
   setFilterFolder,
-} from '@store/slices/vaultSlice';
-import { PasswordEntryCard } from '@components/vault/PasswordEntryCard';
-import { AddPasswordModal } from '@components/vault/AddPasswordModal';
-import { EditPasswordModal } from '@components/vault/EditPasswordModal';
+} from "@store/slices/vaultSlice";
+import { PasswordEntryCard } from "@components/vault/PasswordEntryCard";
+import { AddPasswordModal } from "@components/vault/AddPasswordModal";
+import { EditPasswordModal } from "@components/vault/EditPasswordModal";
 
 export default function VaultPage() {
   const dispatch = useAppDispatch();
@@ -32,7 +43,7 @@ export default function VaultPage() {
     selectedEntry,
     searchQuery,
     filterFolder,
-  } = useAppSelector((state)=> state.vault);
+  } = useAppSelector((state) => state.vault);
 
   // Fetch passwords on mount
   useEffect(() => {
@@ -85,7 +96,7 @@ export default function VaultPage() {
 
   // Handlers
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
+    if (window.confirm("Are you sure you want to logout?")) {
       dispatch(logout());
     }
   };
@@ -99,7 +110,7 @@ export default function VaultPage() {
   };
 
   const handleDeletePassword = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this password?')) {
+    if (window.confirm("Are you sure you want to delete this password?")) {
       await dispatch(deletePasswordEntry(id)).unwrap();
     }
   };
@@ -118,7 +129,7 @@ export default function VaultPage() {
               <div className="d-flex align-items-center gap-3">
                 <div
                   className="bg-primary bg-opacity-10 rounded d-flex align-items-center justify-content-center"
-                  style={{ width: '40px', height: '40px' }}
+                  style={{ width: "40px", height: "40px" }}
                 >
                   <i className="bi bi-shield-lock fs-4 text-primary"></i>
                 </div>
@@ -130,9 +141,16 @@ export default function VaultPage() {
             </Col>
             <Col xs="auto">
               <div className="d-flex gap-2">
-                <Button variant="primary" onClick={() => dispatch(openAddModal())}>
+                <Button
+                  variant="primary"
+                  onClick={() => dispatch(openAddModal())}
+                >
                   <i className="bi bi-plus-lg me-2"></i>
                   Add Password
+                </Button>
+                <Button variant="outline-secondary" as={Link as any} to="/settings">
+                  <i className="bi bi-gear me-2"></i>
+                  Settings
                 </Button>
                 <Button variant="outline-secondary" onClick={handleLogout}>
                   <i className="bi bi-box-arrow-right me-2"></i>
@@ -163,8 +181,10 @@ export default function VaultPage() {
           </Col>
           <Col md={4}>
             <Form.Select
-              value={filterFolder || ''}
-              onChange={(e) => dispatch(setFilterFolder(e.target.value || null))}
+              value={filterFolder || ""}
+              onChange={(e) =>
+                dispatch(setFilterFolder(e.target.value || null))
+              }
             >
               <option value="">All Folders</option>
               {folders.map((folder) => (
@@ -196,7 +216,7 @@ export default function VaultPage() {
               <div className="text-center py-5">
                 <div
                   className="bg-light rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center"
-                  style={{ width: '80px', height: '80px' }}
+                  style={{ width: "80px", height: "80px" }}
                 >
                   <i className="bi bi-shield-lock fs-1 text-muted"></i>
                 </div>
@@ -204,7 +224,10 @@ export default function VaultPage() {
                 <p className="text-muted mb-4">
                   Start securing your passwords by adding your first entry
                 </p>
-                <Button variant="primary" onClick={() => dispatch(openAddModal())}>
+                <Button
+                  variant="primary"
+                  onClick={() => dispatch(openAddModal())}
+                >
                   <i className="bi bi-plus-lg me-2"></i>
                   Add Your First Password
                 </Button>
@@ -212,7 +235,9 @@ export default function VaultPage() {
             ) : filteredEntries.length === 0 ? (
               <div className="text-center py-5">
                 <i className="bi bi-search fs-1 text-muted"></i>
-                <p className="mt-3 text-muted">No passwords match your search or filter</p>
+                <p className="mt-3 text-muted">
+                  No passwords match your search or filter
+                </p>
               </div>
             ) : (
               <>
@@ -223,12 +248,14 @@ export default function VaultPage() {
                       <Card.Body>
                         <div className="d-flex justify-content-between align-items-center">
                           <div>
-                            <p className="text-muted small mb-1">Total Passwords</p>
+                            <p className="text-muted small mb-1">
+                              Total Passwords
+                            </p>
                             <h3 className="mb-0">{decryptedEntries.length}</h3>
                           </div>
                           <div
                             className="bg-primary bg-opacity-10 rounded d-flex align-items-center justify-content-center"
-                            style={{ width: '48px', height: '48px' }}
+                            style={{ width: "48px", height: "48px" }}
                           >
                             <i className="bi bi-shield-lock fs-4 text-primary"></i>
                           </div>
@@ -246,7 +273,7 @@ export default function VaultPage() {
                           </div>
                           <div
                             className="bg-warning bg-opacity-10 rounded d-flex align-items-center justify-content-center"
-                            style={{ width: '48px', height: '48px' }}
+                            style={{ width: "48px", height: "48px" }}
                           >
                             <i className="bi bi-star-fill fs-4 text-warning"></i>
                           </div>
@@ -264,7 +291,7 @@ export default function VaultPage() {
                           </div>
                           <div
                             className="bg-success bg-opacity-10 rounded d-flex align-items-center justify-content-center"
-                            style={{ width: '48px', height: '48px' }}
+                            style={{ width: "48px", height: "48px" }}
                           >
                             <i className="bi bi-folder fs-4 text-success"></i>
                           </div>
@@ -300,7 +327,9 @@ export default function VaultPage() {
                 {regularEntries.length > 0 && (
                   <div>
                     <h5 className="mb-3">
-                      {favoriteEntries.length > 0 ? 'All Passwords' : 'Your Passwords'}
+                      {favoriteEntries.length > 0
+                        ? "All Passwords"
+                        : "Your Passwords"}
                     </h5>
                     <Row xs={1} md={2} lg={3} className="g-3">
                       {regularEntries.map((entry) => (

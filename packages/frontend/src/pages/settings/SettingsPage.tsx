@@ -14,6 +14,7 @@ import {
 import { useAppSelector } from "@/store/index";
 import { api, getErrorMessage } from "@services/api";
 import { TwoFactorMethod } from "@password_manager/shared";
+import { Link } from "react-router-dom";
 
 export default function SettingPage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -153,6 +154,7 @@ export default function SettingPage() {
     <Container className="py-5">
       <Row>
         <Col lg={8} className="mx-auto">
+          <Button as={Link as any} to="/vault"><i className="bi bi-arrow-left"></i></Button>
           <h2 className="mb-4">Settings</h2>
 
           {error && (

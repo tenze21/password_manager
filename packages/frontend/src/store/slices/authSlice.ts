@@ -5,6 +5,7 @@ import {
   type LoginRequest,
   type AuthResponse,
   type UserPublicData,
+  type TwoFactorMethod,
 } from '@password_manager/shared';
 import {
   deriveMasterPasswordHash,
@@ -18,7 +19,7 @@ import {
  * Auth Slice
  */
 
-export interface AuthState {
+interface AuthState {
   user: UserPublicData | null;
   isAuthenticated: boolean;
   encryptionKey: string | null;
@@ -26,6 +27,11 @@ export interface AuthState {
   salt: string | null;
   isLoading: boolean;
   error: string | null;
+
+  // 2FA state
+  requires2FA: boolean;
+  twoFactorMethod: TwoFactorMethod | null;
+  pendingLoginData: { email: string; masterPassword: string } | null;
 }
 
 const initialState: AuthState = {
@@ -36,11 +42,13 @@ const initialState: AuthState = {
   salt: null,
   isLoading: false,
   error: null,
+  requires2FA: false,
+  twoFactorMethod: null,
+  pendingLoginData: null,
 };
 
-/**
- * Register new user
-*/
+// ... register thunk remains the same ...
+
 export const register = createAsyncThunk(
   'auth/register',
   async (
@@ -48,19 +56,13 @@ export const register = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // Generate salt
       const salt = generateSalt();
-
-      // Derive encryption key and password hash
       const [encryptionKey, masterPasswordHash] = await Promise.all([
         deriveEncryptionKey(masterPassword, salt),
         deriveMasterPasswordHash(masterPassword, salt),
       ]);
 
-      // Generate RSA key pair
       const { publicKey, privateKey } = await generateKeyPair();
-
-      // Encrypt private key
       const { ciphertext: encryptedPrivateKey, iv } = await encryptPrivateKey(
         privateKey,
         encryptionKey
@@ -68,7 +70,6 @@ export const register = createAsyncThunk(
 
       const encryptedPrivateKeyWithIV = `${iv}:${encryptedPrivateKey}`;
 
-      // Send registration request
       const registerData: RegisterRequest = {
         email,
         masterPasswordHash,
@@ -100,16 +101,32 @@ export const register = createAsyncThunk(
 );
 
 /**
- * Login user (WITH PROPER SALT FETCHING)
+ * Login user (Step 1: Credentials)
  */
-export const login = createAsyncThunk(
+export const login = createAsyncThunk<
+  {
+    user: UserPublicData;
+    encryptionKey: string;
+    encryptedPrivateKey: string;
+    salt: string;
+    requires2FA: false;
+  }
+  | {
+    requires2FA: true;
+    method: TwoFactorMethod;
+    email: string;
+    masterPassword: string;
+  },
+  { email: string; masterPassword: string },
+  { rejectValue: string }
+>(
   'auth/login',
   async (
     { email, masterPassword }: { email: string; masterPassword: string },
     { rejectWithValue }
   ) => {
     try {
-      // Step 1: Get salt from server
+      // Get salt from server
       const saltResponse = await api.post<{
         success: boolean;
         data: { salt: string };
@@ -117,10 +134,10 @@ export const login = createAsyncThunk(
 
       const { salt } = saltResponse.data.data;
 
-      // Step 2: Derive master password hash with salt
+      // Derive master password hash
       const masterPasswordHash = await deriveMasterPasswordHash(masterPassword, salt);
 
-      // Step 3: Send login request
+      // Send login request (without 2FA code first)
       const loginData: LoginRequest = {
         email,
         masterPasswordHash,
@@ -136,7 +153,82 @@ export const login = createAsyncThunk(
 
       localStorage.setItem('accessToken', accessToken);
 
-      // Step 4: Derive encryption key
+      // Derive encryption key
+      const encryptionKey = await deriveEncryptionKey(masterPassword, serverSalt);
+
+      return {
+        user,
+        encryptionKey,
+        encryptedPrivateKey,
+        salt: serverSalt,
+        requires2FA: false,
+      };
+    } catch (error: any) {
+      // Check if error is 2FA required
+      if (error?.response?.data?.error?.code === 'TWO_FACTOR_REQUIRED') {
+        // Return special payload indicating 2FA is needed
+        console.log(error.response.data.error.method);
+        return {
+          requires2FA: true,
+          method: error.response.data.error.method || 'email',
+          email,
+          masterPassword,
+        };
+      }
+
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
+
+/**
+ * Login with 2FA code (Step 2: 2FA Verification)
+ */
+export const loginWith2FA = createAsyncThunk(
+  'auth/loginWith2FA',
+  async (
+    { twoFactorCode }: { twoFactorCode: string },
+    { rejectWithValue, getState }
+  ) => {
+    try {
+      const state = getState() as { auth: AuthState };
+      const { pendingLoginData } = state.auth;
+
+      if (!pendingLoginData) {
+        return rejectWithValue('No pending login data');
+      }
+
+      const { email, masterPassword } = pendingLoginData;
+
+      // Get salt again
+      const saltResponse = await api.post<{
+        success: boolean;
+        data: { salt: string };
+      }>('/api/auth/get-salt', { email });
+
+      const { salt } = saltResponse.data.data;
+
+      // Derive master password hash
+      const masterPasswordHash = await deriveMasterPasswordHash(masterPassword, salt);
+
+      // Send login request WITH 2FA code
+      const loginData: LoginRequest = {
+        email,
+        masterPasswordHash,
+        twoFactorCode,
+      };
+
+      const response = await api.post<{ success: boolean; data: AuthResponse }>(
+        '/api/auth/login',
+        loginData
+      );
+
+      const { user, accessToken, encryptedPrivateKey, salt: serverSalt } =
+        response.data.data;
+
+      localStorage.setItem('accessToken', accessToken);
+
+      // Derive encryption key
       const encryptionKey = await deriveEncryptionKey(masterPassword, serverSalt);
 
       return {
@@ -196,6 +288,12 @@ const authSlice = createSlice({
     clearEncryptionKey: (state) => {
       state.encryptionKey = null;
     },
+    cancel2FA: (state) => {
+      state.requires2FA = false;
+      state.twoFactorMethod = null;
+      state.pendingLoginData = null;
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     // Register
@@ -218,7 +316,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Login
+    // Login (Step 1)
     builder
       .addCase(login.pending, (state) => {
         state.isLoading = true;
@@ -226,14 +324,49 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
+
+        if (action.payload.requires2FA) {
+          // 2FA required - show verification screen
+          state.requires2FA = true;
+          state.twoFactorMethod = action.payload.method;
+          state.pendingLoginData = {
+            email: action.payload.email,
+            masterPassword: action.payload.masterPassword,
+          };
+        } else {
+          // Direct login success
+          state.isAuthenticated = true;
+          state.user = action.payload.user;
+          state.encryptionKey = action.payload.encryptionKey;
+          state.encryptedPrivateKey = action.payload.encryptedPrivateKey;
+          state.salt = action.payload.salt;
+        }
+        state.error = null;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Login with 2FA (Step 2)
+    builder
+      .addCase(loginWith2FA.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginWith2FA.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.encryptionKey = action.payload.encryptionKey;
         state.encryptedPrivateKey = action.payload.encryptedPrivateKey;
         state.salt = action.payload.salt;
+        state.requires2FA = false;
+        state.twoFactorMethod = null;
+        state.pendingLoginData = null;
         state.error = null;
       })
-      .addCase(login.rejected, (state, action) => {
+      .addCase(loginWith2FA.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
@@ -258,5 +391,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, setEncryptionKey, clearEncryptionKey } = authSlice.actions;
+export const { clearError, setEncryptionKey, clearEncryptionKey, cancel2FA } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@store/index';
-import { login, clearError } from '@store/slices/authSlice';
+import { login, clearError, loginWith2FA, cancel2FA } from '@store/slices/authSlice';
 import { Form, Button, Alert, Container, Card, Spinner } from 'react-bootstrap';
+import { TwoFactorVerification } from '@components/auth/TwoFactorVerification';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { isLoading, error } = useAppSelector((state) => state.auth);
+  const { isLoading, error, requires2FA, twoFactorMethod } = useAppSelector((state) => state.auth);
 
   const [email, setEmail] = useState('');
   const [masterPassword, setMasterPassword] = useState('');
@@ -27,12 +28,51 @@ export default function LoginPage() {
     }
 
     try {
-      await dispatch(login({ email, masterPassword })).unwrap();
-      navigate('/vault');
+      const result= await dispatch(login({ email, masterPassword })).unwrap();
+      if (!result.requires2FA) {
+        navigate('/vault');
+      }
     } catch (err) {
       console.error('Login failed:', err);
     }
   };
+
+  const handle2FAVerification = async (code: string) => {
+    try {
+      await dispatch(loginWith2FA({ twoFactorCode: code })).unwrap();
+      navigate('/vault');
+    } catch (err) {
+      console.error('2FA verification failed:', err);
+    }
+  };
+
+  const handleCancel2FA = () => {
+    dispatch(cancel2FA());
+  };
+
+  if (requires2FA && twoFactorMethod) {
+    return (
+      <div className="min-vh-100 d-flex align-items-center bg-light">
+        <Container>
+          <div className="row justify-content-center">
+            <div className="col-md-6 col-lg-5">
+              <Card className="shadow-lg border-0">
+                <Card.Body className="p-4">
+                  <TwoFactorVerification
+                    method={twoFactorMethod}
+                    onVerify={handle2FAVerification}
+                    onCancel={handleCancel2FA}
+                    isLoading={isLoading}
+                    error={error}
+                  />
+                </Card.Body>
+              </Card>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="min-vh-100 d-flex align-items-center bg-light">

@@ -24,7 +24,8 @@ export class AuthError extends Error {
     constructor(
         public code: string,
         message: string,
-        public statusCode: number = 400
+        public statusCode: number = 400,
+        public method?: string
     ) {
         super(message);
         this.name = 'AuthError';
@@ -147,7 +148,7 @@ export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
 
     if (twoFactorEnabled) {
         const method = user.twoFactorSettings!.method;
-
+        
         // If no 2FA code provided
         if (!data.twoFactorCode) {
             // for email OTP, send the code
@@ -162,7 +163,8 @@ export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
             throw new AuthError(
                 ERROR_CODES.TWO_FACTOR_REQUIRED,
                 '2FA code required',
-                403
+                403,
+                method
             );
         }
 

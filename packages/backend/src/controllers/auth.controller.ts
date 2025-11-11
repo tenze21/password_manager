@@ -126,6 +126,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
                 success: false,
                 error:{
                     code: error.code,
+                    method: error.method,
                     message: error.message
                 }
             }); 
