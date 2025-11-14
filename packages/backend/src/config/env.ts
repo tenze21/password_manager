@@ -25,7 +25,7 @@ dotenv.config({path: path.resolve(__dirname, '../../', envFile)});
  * Throws error if any are missing (fail fast principle)
  */
 function validateEnv(): void{
-    const required=['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET',];
+    const required=['JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET', 'DB_URL', 'EMAIL_PASSWORD'];
     const missing= required.filter((varName)=>!process.env[varName]);
 
     if(missing.length > 0){
