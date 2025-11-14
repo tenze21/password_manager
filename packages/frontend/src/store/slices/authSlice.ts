@@ -19,7 +19,7 @@ import {
  * Auth Slice
  */
 
-interface AuthState {
+export interface AuthState {
   user: UserPublicData | null;
   isAuthenticated: boolean;
   encryptionKey: string | null;

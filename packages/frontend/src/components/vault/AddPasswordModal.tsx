@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Modal, Form, Button, InputGroup, Alert, Badge } from 'react-bootstrap';
-import { generatePassword, calculatePasswordStrength } from '@utils/crypto';
+import { Modal, Form, Button, Alert } from 'react-bootstrap';
+import { generatePassword } from '@utils/crypto';
 import { PasswordStrengthMeter } from '@components/common/PasswordStrengthMeter';
 
 interface AddPasswordModalProps {

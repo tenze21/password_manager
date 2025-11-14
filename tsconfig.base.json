@@ -24,7 +24,6 @@
         /*Type Checking*/
         "strict": true,                     // Enable ALL strict type checking options
         "noUnusedLocals": true,              // Error on unused local variables
-        "noUnusedParameters": true,          // Error on unused function parameters
         "noFallthroughCasesInSwitch": true,  // Error on switch fallthrough
         "noImplicitReturns": true,           // Error when not all code paths return
         "noUncheckedIndexedAccess": true,     // Add undefined to index signatures
