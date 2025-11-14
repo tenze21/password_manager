@@ -12,7 +12,7 @@
     "build:backend": "pnpm --filter backend build",
     "build:shared": "pnpm --filter shared build",
     "install:all": "pnpm install",
-    "build": "pnpm install:all && pnpm build:shared && pnpm build:backend && pnpm build:frontend",
+    "build": "pnpm install:all && pnpm build:shared && pnpm build:backend",
     "start:backend": "pnpm --filter backend start"
   },
   "keywords": [],
