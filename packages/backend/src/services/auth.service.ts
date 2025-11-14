@@ -3,7 +3,7 @@ import { hashPassword, verifyPassword } from "@utils/crypto.js";
 import { generateAccessToken, generateRefreshToken } from '@utils/jwt.js';
 import { RegisterRequest, AuthResponse, LoginRequest, UserPublicData, ERROR_CODES, TwoFactorMethod, LoginResponse } from '@password_manager/shared';
 import { emailTemplates, sendEmail } from '@services/email.service.js';
-import { verifyTOTPCode, verifyEmailOTP, generateAndSendEmailOTP } from './twoFactor.service';
+import { verifyTOTPCode, verifyEmailOTP, generateAndSendEmailOTP } from './twoFactor.service.js';
 
 /**
  * Authentication Service
