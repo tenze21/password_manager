@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TwoFactorMethod } from "../types";
+import { TwoFactorMethod } from "../types/index.js";
 
 // ============================================
 // VALIDATION SCHEMAS
