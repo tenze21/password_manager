@@ -7,16 +7,17 @@ import {config} from './env.js';
  * Sequelize is the ORM that translates our TypeScript models
  * into SQL queries for PostgreSQL
  */
-export const sequelize= new Sequelize({
+export const sequelize= new Sequelize(config.database.url,{
     dialect: 'postgres',
-    host: config.database.host,
-    port: config.database.port,
-    database: config.database.name,
-    username: config.database.user,
-    password: config.database.password,
+    dialectOptions:{
+        ssl:{
+            require: true,
+            rejectUnauthorized: false, 
+        }
+    },
 
     // Logging
-    logging: config.env === 'development'? console.log: false,
+    logging: false,
 
     // Connection pool settings
     pool:{

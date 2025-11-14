@@ -41,10 +41,10 @@ module.exports = {
     
     // Use SSL in production
     dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? {
+      ssl:{
         require: true,
         rejectUnauthorized: false,
-      } : false,
+      },
     },
   },
 };

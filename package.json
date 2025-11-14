@@ -10,7 +10,8 @@
     "dev": "concurrently \"pnpm dev:backend\" \"pnpm dev:frontend\"",
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
-    "build": "pnpm build backend && pnpm build frontend",
+    "build": "pnpm build:backend && pnpm build:frontend",
+    "start:backend": "pnpm --filter backend start",
     "install:all": "pnpm install"
   },
   "keywords": [],

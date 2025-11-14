@@ -47,6 +47,7 @@ export const config={
     port: parseInt(process.env.PORT || '3001', 10),
 
     database:{
+        url: process.env.DB_URL!,
         host: process.env.DB_HOST!,
         port: parseInt(process.env.DB_PORT!, 10),
         name: process.env.DB_NAME!,
