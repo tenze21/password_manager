@@ -1,6 +1,6 @@
-for i in {1..5}; do
+for i in {1..6}; do
     echo "Attempt $i:"
-    curl -X POST http://localhost:3001/api/auth/login \
+    curl -X POST https://password-manager-kwsp.onrender.com/api/auth/login \
     -H "Content-Type: application/json" \
     -d '{
       "email": "test@example.com",

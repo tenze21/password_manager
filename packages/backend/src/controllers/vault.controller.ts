@@ -115,14 +115,9 @@ export async function getPasswordEntry(
  * @route POST /api/vault
  * @access Private
  */
-export async function createPasswordEntry(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function createPasswordEntry(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
-
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -138,11 +133,7 @@ export async function createPasswordEntry(
     const validatedData = CreatePasswordEntrySchema.parse(req.body);
 
     // Create entry
-    const entry = await PasswordEntry.create({
-      userId,
-      ...validatedData,
-    });
-
+    const entry = await PasswordEntry.create({userId, ...validatedData,});
     res.status(201).json({
       success: true,
       data: { entry },
@@ -159,7 +150,6 @@ export async function createPasswordEntry(
       });
       return;
     }
-
     next(error);
   }
 }
@@ -173,65 +163,40 @@ export async function createPasswordEntry(
  * @route PATCH /api/vault/:id
  * @access Private
  */
-export async function updatePasswordEntry(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function updatePasswordEntry(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: {
-          code: ERROR_CODES.UNAUTHORIZED,
-          message: 'User not authenticated',
-        },
+        error: { code: ERROR_CODES.UNAUTHORIZED, message: 'User not authenticated',},
       });
       return;
     }
-
     // Validate request body
     const validatedData = UpdatePasswordEntrySchema.parse(req.body);
-
     // Find entry
-    const entry = await PasswordEntry.findOne({
-      where: { id, userId },
-    });
-
+    const entry = await PasswordEntry.findOne({where: { id, userId },});
     if (!entry) {
       res.status(404).json({
         success: false,
-        error: {
-          code: ERROR_CODES.NOT_FOUND,
-          message: 'Password entry not found',
-        },
+        error: {code: ERROR_CODES.NOT_FOUND, message: 'Password entry not found',},
       });
       return;
     }
-
     // Update entry
     await entry.update(validatedData);
 
-    res.json({
-      success: true,
-      data: { entry },
-    });
+    res.json({success: true, data: { entry },});
   } catch (error) {
     if (error instanceof Error && error.name === 'ZodError') {
       res.status(400).json({
         success: false,
-        error: {
-          code: ERROR_CODES.VALIDATION_ERROR,
-          message: 'Validation failed',
-          details: error,
-        },
+        error: {code: ERROR_CODES.VALIDATION_ERROR, message: 'Validation failed', details: error,},
       });
       return;
     }
-
     next(error);
   }
 }
@@ -245,15 +210,10 @@ export async function updatePasswordEntry(
  * @route DELETE /api/vault/:id
  * @access Private
  */
-export async function deletePasswordEntry(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function deletePasswordEntry(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -264,12 +224,10 @@ export async function deletePasswordEntry(
       });
       return;
     }
-
     // Find and delete entry
     const entry = await PasswordEntry.findOne({
       where: { id, userId },
     });
-
     if (!entry) {
       res.status(404).json({
         success: false,

@@ -29,7 +29,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
         res.cookie('refreshToken', authResponse.refreshToken, {
             httpOnly: true, //Javascript cannot access (XSS protection)
             secure: process.env.NODE_ENV === 'production', //HTTPS only in production
-            sameSite: 'strict', //CSRF protection
+            sameSite: 'lax', //CSRF protection
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days 
         });
 
@@ -93,7 +93,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             res.cookie('refreshToken', authResponse.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: 7*24*60*60*1000
             });
     
@@ -202,7 +202,7 @@ export async function logout(req: Request, res: Response): Promise<void>{
     res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        sameSite: 'lax'
     });
     res.json({
         success: true,

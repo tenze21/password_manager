@@ -1,5 +1,5 @@
 for i in {1..6}; do
-  curl -X POST http://localhost:3001/api/auth/register \
+  curl -X POST https://password-manager-kwsp.onrender.com/api/auth/register \
     -H "Content-Type: application/json" \
     -d '{
       "email": "test$i@example.com",
